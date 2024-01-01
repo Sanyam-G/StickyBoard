@@ -30,10 +30,6 @@ A simple yet interactive sticky notes application that runs in a web browser. Us
 
 Contributions are welcome! If you have ideas for improvements or notice any issues, feel free to fork this repository, make changes, and submit a pull request. For major changes or new feature suggestions, please open an issue first to discuss what you would like to change.
 
-## License
-
-This project is open source and available under [MIT License](LICENSE).
-
 ## Contact
 
 Feel free to reach out for any queries or suggestions at [sanyamg@icloud.com](mailto:sanyamg@icloud.com).
