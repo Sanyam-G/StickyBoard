@@ -3,8 +3,8 @@ document.getElementById('addNote').addEventListener('click', addNewNote);
 function addNewNote() {
     const noteContainer = document.createElement('div');
     noteContainer.classList.add('note');
-    noteContainer.style.left = '50px';
-    noteContainer.style.top = '50px';
+    noteContainer.style.left = '50px'; // Default position
+    noteContainer.style.top = '100px'; // Default position
 
     const textArea = document.createElement('textarea');
     noteContainer.appendChild(textArea);
@@ -44,10 +44,11 @@ function addNewNote() {
 
     document.getElementById('notesContainer').appendChild(noteContainer);
 
-    // Updated Draggable functionality
+    // Draggable functionality
     noteContainer.addEventListener('mousedown', function(e) {
-        var offsetX = e.clientX - noteContainer.getBoundingClientRect().left + window.scrollX;
-        var offsetY = e.clientY - noteContainer.getBoundingClientRect().top + window.scrollY;
+        e.preventDefault();
+        let offsetX = e.clientX - noteContainer.getBoundingClientRect().left;
+        let offsetY = e.clientY - noteContainer.getBoundingClientRect().top;
 
         function mouseMoveHandler(e) {
             noteContainer.style.left = (e.clientX - offsetX) + 'px';
