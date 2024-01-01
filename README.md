@@ -12,6 +12,7 @@ A simple yet interactive sticky notes application that runs in a web browser. Us
 ## Current Issues
 
 - **Lack of Design**: The current UI is basic and could benefit from a more aesthetically pleasing design.
+- **Resizing**: The sticky note buttons are too cluttered, causing the resize functionality to be blocked by the dragging functionality.
 - **Non-Persistent Notes**: Notes are not saved and will be lost upon refreshing or closing the browser.
 
 ## Ideas for Future Improvement
