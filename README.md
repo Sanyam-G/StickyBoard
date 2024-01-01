@@ -32,4 +32,4 @@ Contributions are welcome! If you have ideas for improvements or notice any issu
 
 ## Contact
 
-Feel free to reach out for any queries or suggestions at [sanyamg@icloud.com](mailto:sanyamg@icloud.com).
+Feel free to reach out for any queries or suggestions at [sanyamg2006@gmail.com](mailto:sanyamg2006@gmail.com).
