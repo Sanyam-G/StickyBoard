@@ -1,66 +1,98 @@
-document.getElementById('addNote').addEventListener('click', addNewNote);
+document.addEventListener('DOMContentLoaded', () => {
+    const addNoteButton = document.getElementById('addNote');
+    const changeColorInput = document.getElementById('changeColor');
+    const changeFontButton = document.getElementById('changeFont');
+    const notesContainer = document.getElementById('notesContainer');
+    let selectedNote = null;
 
-function addNewNote() {
-    const noteContainer = document.createElement('div');
-    noteContainer.classList.add('note');
-    noteContainer.style.left = '50px'; // Default position
-    noteContainer.style.top = '100px'; // Default position
+    addNoteButton.addEventListener('click', () => createNote());
+    changeColorInput.addEventListener('input', (e) => changeColor(e.target.value));
+    changeFontButton.addEventListener('click', () => changeFont());
 
-    const textArea = document.createElement('textarea');
-    noteContainer.appendChild(textArea);
+    function createNote() {
+        const note = document.createElement('div');
+        note.classList.add('note');
+        note.style.position = 'absolute';
+        note.innerHTML = `
+            <textarea></textarea>
+            <span class="delete">X</span>
+            <div class="resize-handle"></div>
+        `;
+        notesContainer.appendChild(note);
 
-    const deleteBtn = document.createElement('div');
-    deleteBtn.textContent = 'X';
-    deleteBtn.classList.add('delete');
-    deleteBtn.onclick = function() {
-        noteContainer.remove();
-    };
-    noteContainer.appendChild(deleteBtn);
+        const deleteButton = note.querySelector('.delete');
+        deleteButton.addEventListener('click', () => note.remove());
 
-    const colorInput = document.createElement('input');
-    colorInput.type = 'color';
-    colorInput.classList.add('color-picker');
-    colorInput.oninput = function() {
-        noteContainer.style.backgroundColor = colorInput.value;
-    };
-    noteContainer.appendChild(colorInput);
+        // Drag functionality
+        note.addEventListener('mousedown', startDrag);
 
-    const fontSelector = document.createElement('select');
-    fontSelector.classList.add('font-picker');
-    const fonts = ["Arial", "Verdana", "Times New Roman", "Courier New", "Trebuchet MS"];
-    fonts.forEach(font => {
-        const option = document.createElement('option');
-        option.value = font;
-        option.textContent = font;
-        fontSelector.appendChild(option);
-    });
-    fontSelector.onchange = function() {
-        textArea.style.fontFamily = fontSelector.value;
-    };
-    fontSelector.onmousedown = function(e) {
+        // Resize functionality
+        const resizeHandle = note.querySelector('.resize-handle');
+        resizeHandle.addEventListener('mousedown', startResize);
+
+        note.addEventListener('click', () => selectedNote = note);
+        note.querySelector('textarea').addEventListener('input', handleMarkdown);
+    }
+
+    function startDrag(e) {
+        if (e.target.tagName !== 'TEXTAREA' && e.target.className !== 'resize-handle') {
+            const note = e.target.closest('.note');
+            let offsetX = e.clientX - note.getBoundingClientRect().left;
+            let offsetY = e.clientY - note.getBoundingClientRect().top;
+
+            const drag = (e) => {
+                note.style.left = (e.clientX - offsetX) + 'px';
+                note.style.top = (e.clientY - offsetY) + 'px';
+            };
+
+            const stopDrag = () => {
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+            };
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+    }
+
+    function changeColor(color) {
+        if (selectedNote) {
+            selectedNote.style.backgroundColor = color;
+        }
+    }
+
+    function changeFont() {
+        if (selectedNote) {
+            selectedNote.style.fontFamily = prompt("Enter a font family (e.g., Arial, Verdana):", "Arial");
+        }
+    }
+
+    function handleMarkdown(e) {
+        const text = e.target.value;
+        e.target.innerHTML = text
+            .replace(/\*\*(.*?)\*\*/gm, '<span class="bold">$1</span>')
+            .replace(/\*(.*?)\*/gm, '<span class="italic">$1</span>');
+    }
+
+    function startResize(e) {
         e.stopPropagation();
-    };
-    noteContainer.appendChild(fontSelector);
+        const note = e.target.closest('.note');
+        let startX = e.clientX;
+        let startY = e.clientY;
+        let startWidth = note.offsetWidth;
+        let startHeight = note.offsetHeight;
 
-    document.getElementById('notesContainer').appendChild(noteContainer);
+        const resize = (e) => {
+            note.style.width = startWidth + e.clientX - startX + 'px';
+            note.style.height = startHeight + e.clientY - startY + 'px';
+        };
 
-    // Draggable functionality
-    noteContainer.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-        let offsetX = e.clientX - noteContainer.getBoundingClientRect().left;
-        let offsetY = e.clientY - noteContainer.getBoundingClientRect().top;
+        const stopResize = () => {
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+        };
 
-        function mouseMoveHandler(e) {
-            noteContainer.style.left = (e.clientX - offsetX) + 'px';
-            noteContainer.style.top = (e.clientY - offsetY) + 'px';
-        }
-
-        function reset() {
-            window.removeEventListener('mousemove', mouseMoveHandler);
-            window.removeEventListener('mouseup', reset);
-        }
-
-        window.addEventListener('mousemove', mouseMoveHandler);
-        window.addEventListener('mouseup', reset);
-    });
-}
+        document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', stopResize);
+    }
+});

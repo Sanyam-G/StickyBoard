@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sticky Notes App</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Sticky Notes</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <h1>Sticky Notes Dashboard</h1>
-        <button id="addNote">+ Add Note</button>
-        <div id="notesContainer"></div>
+    <div id="sidebar">
+        <h1>Sticky Notes</h1>
+        <button id="addNote">Add Note</button>
+        <input type="color" id="changeColor" title="Change Color">
+        <button id="changeFont">Change Font</button>
+        <p>Markdown Guide: **bold** *italics*</p>
     </div>
+    <div id="notesContainer"></div>
     <script src="script.js"></script>
 </body>
 </html>
