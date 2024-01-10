@@ -1,4 +1,4 @@
-# Sticky Notes Web Application
+# StickyBoard
 
 ## Description
 This Sticky Notes Web Application allows users to create, modify, and organize digital sticky notes on a simple and intuitive interface. It's built with HTML, CSS, and JavaScript, offering functionalities like note creation, color and font customization, drag-and-drop arrangement, and resizable notes.
