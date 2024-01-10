@@ -25,4 +25,4 @@ This Sticky Notes Web Application allows users to create, modify, and organize d
 - **Customizable Themes**: Provide different themes for the application interface.
 
 ---
-Enjoy using Sticky Notes! For any suggestions or contributions, feel free to fork this repository or submit a pull request.
+Enjoy using Sticky Notes! For any suggestions or contributions, please feel free to fork this repository or submit a pull request.
