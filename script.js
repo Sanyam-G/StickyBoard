@@ -3,10 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const changeColorInput = document.getElementById('changeColor');
     const changeFontSelect = document.getElementById('changeFont');
     const notesContainer = document.getElementById('notesContainer');
+    const fontSizeSelect = document.getElementById('fontSize');
     let selectedNote = null;
 
     addNoteButton.addEventListener('click', () => createNote());
     changeColorInput.addEventListener('input', (e) => changeColor(e.target.value));
+    fontSizeSelect.addEventListener('change', () => {
+        applyFontSize(fontSizeSelect.value);
+    });
     changeFontSelect.addEventListener('change', () => {
         const selectedFont = changeFontSelect.value;
         if (selectedFont === 'Other...') {
@@ -22,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         note.classList.add('note');
         note.style.position = 'absolute';
         note.innerHTML = `
-            <textarea></textarea>
+            <div class="content" contenteditable="true"></div>
             <span class="delete">X</span>
             <div class="resize-handle"></div>
         `;
@@ -36,10 +40,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Resize functionality
         const resizeHandle = note.querySelector('.resize-handle');
+        const contentDiv = note.querySelector('.content');
+
         resizeHandle.addEventListener('mousedown', startResize);
+        contentDiv.addEventListener('mouseup', () => applySelectedFontSize(contentDiv));
+
+
+        
 
         note.addEventListener('click', () => selectedNote = note);
         note.querySelector('textarea').addEventListener('input', handleMarkdown);
+    }
+
+    function applyFontSize(size) {
+        fontSizeSelect.dataset.size = size; // Store selected font size in data attribute
+    }
+
+    function applySelectedFontSize(contentDiv) {
+        const size = fontSizeSelect.dataset.size;
+        if (size && document.getSelection().toString()) {
+            document.execCommand('fontSize', false, '7'); // Temporary font size
+            const fontElements = contentDiv.querySelectorAll('font[size="7"]');
+            for (let fontElem of fontElements) {
+                fontElem.removeAttribute('size');
+                fontElem.style.fontSize = size;
+            }
+        }
+    }
+
+    function wrapSelectedText(textarea, size) {
+        const text = textarea.value;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = text.substring(start, end);
+        const beforeText = text.substring(0, start);
+        const afterText = text.substring(end);
+
+        // Wrap the selected text in a span with the chosen font size
+        textarea.value = `${beforeText}<span style="font-size: ${size};">${selectedText}</span>${afterText}`;
     }
 
     function startDrag(e) {
