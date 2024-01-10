@@ -1,14 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     const addNoteButton = document.getElementById('addNote');
     const changeColorInput = document.getElementById('changeColor');
-    const changeFontButton = document.getElementById('changeFont');
+    const changeFontSelect = document.getElementById('changeFont');
     const notesContainer = document.getElementById('notesContainer');
     let selectedNote = null;
 
     addNoteButton.addEventListener('click', () => createNote());
     changeColorInput.addEventListener('input', (e) => changeColor(e.target.value));
-    changeFontButton.addEventListener('click', () => changeFont());
+    changeFontSelect.addEventListener('change', () => {
+        const selectedFont = changeFontSelect.value;
+        if (selectedFont === 'Other...') {
+            changeFont();
+        } else if (selectedFont) {
+            applyFont(selectedFont);
+        }
+    });
 
+    
     function createNote() {
         const note = document.createElement('div');
         note.classList.add('note');
@@ -62,8 +70,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function changeFont() {
+        const font = prompt("Enter a font family (e.g., Arial, Verdana):", "Arial");
+        if (font) {
+            applyFont(font);
+        }
+    }
+
+    function applyFont(font) {
         if (selectedNote) {
-            selectedNote.style.fontFamily = prompt("Enter a font family (e.g., Arial, Verdana):", "Arial");
+            selectedNote.style.fontFamily = font;
         }
     }
 
