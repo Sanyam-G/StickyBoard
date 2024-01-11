@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fontSizeSelect = document.getElementById('fontSize');
     let selectedNote = null;
 
+    loadNotes();
+
     addNoteButton.addEventListener('click', () => createNote());
     changeColorInput.addEventListener('input', (e) => changeColor(e.target.value));
     fontSizeSelect.addEventListener('change', () => {
@@ -20,36 +22,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    
-    function createNote() {
+    function createNote(content = '', posX = 100, posY = 100) {
         const note = document.createElement('div');
         note.classList.add('note');
         note.style.position = 'absolute';
+        note.style.left = posX + 'px';
+        note.style.top = posY + 'px';
         note.innerHTML = `
-            <div class="content" contenteditable="true"></div>
+            <div class="content" contenteditable="true">${content}</div>
             <span class="delete">X</span>
             <div class="resize-handle"></div>
         `;
         notesContainer.appendChild(note);
 
-        const deleteButton = note.querySelector('.delete');
-        deleteButton.addEventListener('click', () => note.remove());
-
-        // Drag functionality
+        note.querySelector('.content').addEventListener('input', () => saveNotes());
+        note.querySelector('.delete').addEventListener('click', () => {
+            note.remove();
+            saveNotes();
+        });
         note.addEventListener('mousedown', startDrag);
-
-        // Resize functionality
-        const resizeHandle = note.querySelector('.resize-handle');
-        const contentDiv = note.querySelector('.content');
-
-        resizeHandle.addEventListener('mousedown', startResize);
-        contentDiv.addEventListener('mouseup', () => applySelectedFontSize(contentDiv));
-
-
-        
-
+        note.querySelector('.resize-handle').addEventListener('mousedown', startResize);
         note.addEventListener('click', () => selectedNote = note);
-        note.querySelector('textarea').addEventListener('input', handleMarkdown);
+    }
+
+    function saveNotes() {
+        const notesData = [];
+        document.querySelectorAll('.note').forEach(note => {
+            const content = note.querySelector('.content').innerHTML;
+            const rect = note.getBoundingClientRect();
+            notesData.push({ content, x: rect.left, y: rect.top });
+        });
+        localStorage.setItem('stickyNotes', JSON.stringify(notesData));
+    }
+
+    function loadNotes() {
+        const notesData = JSON.parse(localStorage.getItem('stickyNotes'));
+        if (notesData) {
+            notesData.forEach(noteData => {
+                createNote(noteData.content, noteData.x, noteData.y);
+            });
+        }
     }
 
     function applyFontSize(size) {
