@@ -9,9 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
 
     addNoteButton.addEventListener('click', () => createNote());
-    changeColorInput.addEventListener('input', (e) => changeColor(e.target.value));
-    fontSizeSelect.addEventListener('change', () => {
-        applyFontSize(fontSizeSelect.value);
+    changeColorInput.addEventListener('input', (e) => {
+        changeColor(e.target.value);
+        saveNotes(); // Save note color immediately
     });
     changeFontSelect.addEventListener('change', () => {
         const selectedFont = changeFontSelect.value;
@@ -20,14 +20,23 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (selectedFont) {
             applyFont(selectedFont);
         }
+        saveNotes();
+    });
+    
+    fontSizeSelect.addEventListener('change', () => {
+        applyFontSize(fontSizeSelect.value);
+        saveNotes();
     });
 
-    function createNote(content = '', posX = 100, posY = 100) {
+    function createNote(content = '', posX = 100, posY = 100, bgColor = 'yellow', fontFamily = 'Arial', fontSize = '14px') {
         const note = document.createElement('div');
         note.classList.add('note');
         note.style.position = 'absolute';
         note.style.left = posX + 'px';
         note.style.top = posY + 'px';
+        note.style.backgroundColor = bgColor;
+        note.style.fontFamily = fontFamily;
+        note.style.fontSize = fontSize;
         note.innerHTML = `
             <div class="content" contenteditable="true">${content}</div>
             <span class="delete">X</span>
@@ -50,7 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.note').forEach(note => {
             const content = note.querySelector('.content').innerHTML;
             const rect = note.getBoundingClientRect();
-            notesData.push({ content, x: rect.left, y: rect.top });
+            notesData.push({ 
+                content, 
+                x: rect.left, 
+                y: rect.top,
+                bgColor: note.style.backgroundColor,
+                fontFamily: note.style.fontFamily,
+                fontSize: note.style.fontSize
+            });
         });
         localStorage.setItem('stickyNotes', JSON.stringify(notesData));
     }
@@ -59,41 +75,49 @@ document.addEventListener('DOMContentLoaded', () => {
         const notesData = JSON.parse(localStorage.getItem('stickyNotes'));
         if (notesData) {
             notesData.forEach(noteData => {
-                createNote(noteData.content, noteData.x, noteData.y);
+                createNote(
+                    noteData.content, 
+                    noteData.x, 
+                    noteData.y, 
+                    noteData.bgColor, 
+                    noteData.fontFamily, 
+                    noteData.fontSize
+                );
             });
         }
     }
 
     function applyFontSize(size) {
-        fontSizeSelect.dataset.size = size; // Store selected font size in data attribute
-    }
-
-    function applySelectedFontSize(contentDiv) {
-        const size = fontSizeSelect.dataset.size;
-        if (size && document.getSelection().toString()) {
-            document.execCommand('fontSize', false, '7'); // Temporary font size
-            const fontElements = contentDiv.querySelectorAll('font[size="7"]');
-            for (let fontElem of fontElements) {
-                fontElem.removeAttribute('size');
-                fontElem.style.fontSize = size;
-            }
+        if (selectedNote) {
+            selectedNote.style.fontSize = size;
+            saveNotes();
         }
     }
 
-    function wrapSelectedText(textarea, size) {
-        const text = textarea.value;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const selectedText = text.substring(start, end);
-        const beforeText = text.substring(0, start);
-        const afterText = text.substring(end);
+    function changeColor(color) {
+        if (selectedNote) {
+            selectedNote.style.backgroundColor = color;
+            saveNotes();
+        }
+    }
 
-        // Wrap the selected text in a span with the chosen font size
-        textarea.value = `${beforeText}<span style="font-size: ${size};">${selectedText}</span>${afterText}`;
+    function changeFont() {
+        const font = prompt("Enter a font family (e.g., Arial, Verdana):", "Arial");
+        if (font) {
+            applyFont(font);
+            saveNotes();
+        }
+    }
+
+    function applyFont(font) {
+        if (selectedNote) {
+            selectedNote.style.fontFamily = font;
+            saveNotes();
+        }
     }
 
     function startDrag(e) {
-        if (e.target.tagName !== 'TEXTAREA' && e.target.className !== 'resize-handle') {
+        if (e.target.className !== 'resize-handle') {
             const note = e.target.closest('.note');
             let offsetX = e.clientX - note.getBoundingClientRect().left;
             let offsetY = e.clientY - note.getBoundingClientRect().top;
@@ -111,32 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.addEventListener('mousemove', drag);
             document.addEventListener('mouseup', stopDrag);
         }
-    }
-
-    function changeColor(color) {
-        if (selectedNote) {
-            selectedNote.style.backgroundColor = color;
-        }
-    }
-
-    function changeFont() {
-        const font = prompt("Enter a font family (e.g., Arial, Verdana):", "Arial");
-        if (font) {
-            applyFont(font);
-        }
-    }
-
-    function applyFont(font) {
-        if (selectedNote) {
-            selectedNote.style.fontFamily = font;
-        }
-    }
-
-    function handleMarkdown(e) {
-        const text = e.target.value;
-        e.target.innerHTML = text
-            .replace(/\*\*(.*?)\*\*/gm, '<span class="bold">$1</span>')
-            .replace(/\*(.*?)\*/gm, '<span class="italic">$1</span>');
     }
 
     function startResize(e) {
