@@ -28,15 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
         saveNotes();
     });
 
-    function createNote(content = '', posX = 100, posY = 100, bgColor = 'yellow', fontFamily = 'Arial', fontSize = '14px') {
+    function createNote(content = '', posX = '100px', posY = '100px', bgColor = 'yellow', fontFamily = 'Arial', fontSize = '14px', width = '150px', height = '150px') {
         const note = document.createElement('div');
         note.classList.add('note');
         note.style.position = 'absolute';
-        note.style.left = posX + 'px';
-        note.style.top = posY + 'px';
+        note.style.left = posX;
+        note.style.top = posY;
         note.style.backgroundColor = bgColor;
         note.style.fontFamily = fontFamily;
         note.style.fontSize = fontSize;
+        note.style.width = width;
+        note.style.height = height;
         note.innerHTML = `
             <div class="content" contenteditable="true">${content}</div>
             <span class="delete">X</span>
@@ -44,13 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         notesContainer.appendChild(note);
 
-        note.querySelector('.content').addEventListener('input', () => saveNotes());
+        note.querySelector('.content').addEventListener('input', saveNotes);
         note.querySelector('.delete').addEventListener('click', () => {
             note.remove();
             saveNotes();
         });
         note.addEventListener('mousedown', startDrag);
-        note.querySelector('.resize-handle').addEventListener('mousedown', startResize);
+        note.querySelector('.resize-handle').addEventListener('mousedown', (e) => startResize(e, note));
         note.addEventListener('click', () => selectedNote = note);
     }
 
@@ -58,14 +60,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const notesData = [];
         document.querySelectorAll('.note').forEach(note => {
             const content = note.querySelector('.content').innerHTML;
-            const rect = note.getBoundingClientRect();
             notesData.push({ 
                 content, 
-                x: rect.left, 
-                y: rect.top,
+                x: note.style.left, 
+                y: note.style.top,
                 bgColor: note.style.backgroundColor,
                 fontFamily: note.style.fontFamily,
-                fontSize: note.style.fontSize
+                fontSize: note.style.fontSize,
+                width: note.style.width,
+                height: note.style.height
             });
         });
         localStorage.setItem('stickyNotes', JSON.stringify(notesData));
@@ -81,11 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     noteData.y, 
                     noteData.bgColor, 
                     noteData.fontFamily, 
-                    noteData.fontSize
+                    noteData.fontSize,
+                    noteData.width,
+                    noteData.height
                 );
             });
         }
     }
+
 
     function applyFontSize(size) {
         if (selectedNote) {
@@ -133,29 +139,34 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', () => {
+                saveNotes(); // Save notes after dragging
+            }, { once: true });
             document.addEventListener('mouseup', stopDrag);
         }
     }
 
-    function startResize(e) {
-        e.stopPropagation();
-        const note = e.target.closest('.note');
+    function startResize(e, note) {
+        e.preventDefault();
         let startX = e.clientX;
         let startY = e.clientY;
-        let startWidth = note.offsetWidth;
-        let startHeight = note.offsetHeight;
+        let startWidth = note.clientWidth;
+        let startHeight = note.clientHeight;
 
-        const resize = (e) => {
-            note.style.width = startWidth + e.clientX - startX + 'px';
-            note.style.height = startHeight + e.clientY - startY + 'px';
-        };
+        function resizing(e) {
+            let newWidth = startWidth + e.clientX - startX;
+            let newHeight = startHeight + e.clientY - startY;
+            note.style.width = `${newWidth}px`;
+            note.style.height = `${newHeight}px`;
+        }
 
-        const stopResize = () => {
-            document.removeEventListener('mousemove', resize);
+        function stopResize() {
+            document.removeEventListener('mousemove', resizing);
             document.removeEventListener('mouseup', stopResize);
-        };
+            saveNotes(); // Save notes after resizing
+        }
 
-        document.addEventListener('mousemove', resize);
+        document.addEventListener('mousemove', resizing);
         document.addEventListener('mouseup', stopResize);
     }
 });
