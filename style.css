@@ -104,3 +104,31 @@ h1 {
     text-align: center;
     overflow: auto;
 }
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+    height: 40px;
+}
+
+.custom-file-upload:hover {
+    background-color: #2980b9;
+}
+
+.file-management {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: auto; /* Pushes the container to the bottom */
+    padding-top: 20px; /* Adds some space above the buttons */
+}
+
+#exportNotes, .custom-file-upload {
+    flex: 1; /* Each button takes equal width */
+    margin: 5px; /* Adds space between the buttons */
+}

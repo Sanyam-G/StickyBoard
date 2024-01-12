@@ -169,4 +169,30 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('mousemove', resizing);
         document.addEventListener('mouseup', stopResize);
     }
+
+    document.getElementById('exportNotes').addEventListener('click', exportNotes);
+    document.getElementById('importNotes').addEventListener('change', importNotes);
+
+    function exportNotes() {
+        const notesData = JSON.stringify(JSON.parse(localStorage.getItem('stickyNotes')), null, 2);
+        const blob = new Blob([notesData], { type: 'application/json' });
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = href;
+        link.download = 'StickyBoard_notes.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(href);
+    }
+
+    function importNotes(event) {
+        const fileReader = new FileReader();
+        fileReader.onload = (e) => {
+            const notesData = JSON.parse(e.target.result);
+            localStorage.setItem('stickyNotes', JSON.stringify(notesData));
+            loadNotes(); // Reload the notes
+        };
+        fileReader.readAsText(event.target.files[0]);
+    }
 });
