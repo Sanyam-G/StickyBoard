@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const changeFontSelect = document.getElementById('changeFont');
     const notesContainer = document.getElementById('notesContainer');
     const fontSizeSelect = document.getElementById('fontSize');
+    document.getElementById('clearnotes').addEventListener('click', clearAllNotes);
+
     let selectedNote = null;
 
     loadNotes();
@@ -194,5 +196,15 @@ document.addEventListener('DOMContentLoaded', () => {
             loadNotes(); // Reload the notes
         };
         fileReader.readAsText(event.target.files[0]);
+    }
+
+    function clearAllNotes() {
+        // Clear all notes from the display
+        while (notesContainer.firstChild) {
+            notesContainer.removeChild(notesContainer.firstChild);
+        }
+
+        // Clear notes from localStorage
+        localStorage.removeItem('stickyNotes');
     }
 });
